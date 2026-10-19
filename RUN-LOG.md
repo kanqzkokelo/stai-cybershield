@@ -11,7 +11,7 @@ Every entry is something we actually saw, not something we assumed.
 
 ## 1. Where it stands
 
-Verified on 19 Oct 2026, ~12:35 PM, on a Cloud Shell VM in `europe-west4`.
+Verified on 19 Oct 2026, ~12:35 PM first, and again ~10 PM (see OK-7), on a Cloud Shell VM in `europe-west4`.
 
 | # | What | Evidence |
 |---|------|----------|
@@ -26,6 +26,7 @@ Verified on 19 Oct 2026, ~12:35 PM, on a Cloud Shell VM in `europe-west4`.
 | 9 | The hub page matches the list, automatically | with `google.com, youtube.com` the page lists exactly those two; with wikipedia/khanacademy it lists those two instead |
 | 10 | Reset survives being run repeatedly | two setups back to back -> `Up (healthy)`, all 8 programs `RUNNING` |
 | 11 | The app writes a log of everything it does | `cybershield.log` next to the `.exe`, entries below |
+| 12 | The buttons work by hand, first try | `cybershield.log` 21:48-22:03 - Launch (2 sites), Turn off, Launch (4 sites), Turn off, all OK; see OK-7 |
 
 Session URL (must be opened while signed in as the Cloud Shell account - it is
 account-locked, see OPEN-1):
@@ -85,6 +86,22 @@ CYBERSHIELD_OFF=ok
 Then a normal Launch: the checksum probe skipped the install, the container came
 back `(healthy)` and both `CYBERSHIELD_HOST=...` markers were returned. Off and
 back on with no extra steps.
+
+### OK-7 The first real click-through, by hand
+The app was driven through its buttons on 19 Oct, 21:47-22:03, and every action
+worked first try (`cybershield.log`):
+
+```
+21:47:26  Launch clicked - 2 sites   ->  21:48:30  Launch OK - 2 sites
+21:57:08  Turn off clicked           ->  21:57:23  Turn off OK
+22:01:01  Launch clicked - 4 sites   ->  22:01:57  Launch OK - 4 sites
+22:03:07  Turn off clicked           ->  22:03:22  Turn off OK
+```
+
+And the demo's block beat, proven on the live session: with the 2-site allow
+list, `youtube.com` typed into the session's own address bar returns Firefox's
+"Blocked Page - your organization has blocked access" - captured as
+`blocked-page.png`.
 
 ---
 
@@ -335,6 +352,17 @@ fell apart and `-f1` looked like a gcloud flag.
 the PC side. Verified live: it returns `9bce501c...  /home/.../setup.sh` and the
 launch skips straight to the policy push (~40 s).
 
+### FAIL-17 One cosmetic PowerShell error in a reply tail  **(tracked, not fixed)**
+**Symptom.** One Launch's reply tail ended with `Remove-Item ... run.cmd:
+ItemNotFoundException` even though the Launch succeeded.
+
+**Cause.** The worker deletes its one-line shim when done; the cleanup can run
+twice, and the second delete's error lands in the captured output. A later
+Launch did not show it - intermittent and harmless.
+
+**Fix (pending).** Guard the cleanup with `-ErrorAction SilentlyContinue`.
+Filed rather than rushed so the shipped `.exe` never disagrees with its source.
+
 ---
 
 ## 4. OPEN - known, and not verifiable from here
@@ -360,9 +388,11 @@ itself loads, but that also makes the image's file-browser service
 (`fsweb`, port 8080) reachable from inside the locked browser. Tighten to the
 exact hub path if this matters.
 
-### OPEN-4 Only the allow list was proven, not the block list
-The policy generator writes both, and the block-list branch was reviewed, but
-only allow mode has been exercised end to end. Worth one demo run in block mode.
+### OPEN-4 Block mode exercised at policy level, not visually
+Block mode has now run end to end (`sites=1 mode=block`, the domain landed in
+`policies.json`, Reset came back clean). The *visual* block-page proof on record
+is the allow-mode one (`blocked-page.png`), so one live block-mode demo run is
+still worth doing before the day.
 
 ### OPEN-5 Cloud Shell limits (by design, not bugs)
 Unavailable to under-18 accounts; 50 h/week quota; 12 h session cap; a session

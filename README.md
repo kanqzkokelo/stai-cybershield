@@ -11,7 +11,29 @@
 | `cybershield-sites.json` | Your PC | Your website list (created on first save) |
 | `cybershield.log` | Your PC | Runtime log — every action, success or failure (created on first run) |
 | `RUN-LOG.md` | — | What works, what broke, why, and what is still open |
+| `DEMO-DAY.md` | — | The demo-day runbook: beats, checklist, recovery playbook |
 | `hub-page.png` | — | Screenshot of the live locked session |
+| `blocked-page.png` | — | What an off-list site gets — Firefox's blocked-by-policy page |
+
+---
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    subgraph PC["Your PC"]
+        APP["Cybershield.exe — site list,<br/>Launch / Reset / Turn off"]
+        WIN["session window<br/>(live view of the locked browser)"]
+    end
+    subgraph CLOUD["Google Cloud Shell (free tier)"]
+        BOX["locked Firefox in Docker —<br/>allow-only or except-list policy"]
+    end
+    APP -->|pushes the list, starts and stops it| BOX
+    BOX -->|session URL| WIN
+```
+
+Nothing runs on the child's machine: the locked browser lives in the cloud and
+the PC app only drives it.
 
 ---
 
@@ -27,6 +49,8 @@ Two modes:
 - **Allow everything except these** — blocklist. Normal browsing, minus the
   sites you name.
 
+![The locked session, showing exactly the allowed sites](hub-page.png)
+
 ---
 
 ## 1. Cloud Shell side — the app does it
@@ -34,7 +58,7 @@ Two modes:
 Nothing to paste. The first **Launch session** sets Cloud Shell up by itself:
 the app uploads the installer it carries, checks the upload byte for byte,
 builds the image (the first run pulls ~2 GB — expect a few minutes) and starts
-the session. The bar at the bottom says `first run - …` while that happens.
+the session. The bar at the bottom says `session update - …` while that happens.
 
 The Cloud Shell side is also still in `cloudshell-setup.sh`, for running it by
 hand (a terminal, another machine, or recovery): paste it into a Cloud Shell
@@ -49,8 +73,13 @@ Inside, you get a normal, maximised Firefox: back, forward, reload and an
 address bar all work. The lock is enforced by the policy, not by hiding
 buttons.
 
-**Check the lock before the demo:** type `youtube.com` in the address bar and
-press Enter → you should get Firefox's blocked-by-policy page. Then go back.
+**Check the lock before the demo:** type a site that is **not** on your list —
+with the default list, `youtube.com` — and press Enter → you should get
+Firefox's blocked-by-policy page:
+
+![an off-list site is blocked by policy](blocked-page.png)
+
+Then go back.
 
 ---
 
