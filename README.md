@@ -2,7 +2,7 @@
 
 | File | Where it runs | What it does |
 |---|---|---|
-| `cloudshell-setup.sh` | Google Cloud Shell | Installs + builds + runs the locked Firefox session |
+| `cloudshell-setup.sh` | Google Cloud Shell | Installs + builds + runs the locked Firefox session — also carried inside the app, so a fresh Cloud Shell needs no pasting |
 | `Cybershield.exe` | Your PC | The app — website list, Launch, Reset |
 | `Launch Cybershield.cmd` | Your PC | Double-click alternative that runs the source directly |
 | `Rebuild Cybershield.cmd` | Your PC | Double-click this to recompile `Cybershield.exe` |
@@ -29,17 +29,28 @@ Two modes:
 
 ---
 
-## 1. Cloud Shell side (do this first, ideally the day before)
+## 1. Cloud Shell side — the app does it
 
-Paste the whole contents of `cloudshell-setup.sh` into a Cloud Shell terminal
-and run it. It installs itself to `~/cybershield/`, builds the image (first run
-pulls ~2 GB), starts the session, and sets up auto-start for later VMs.
+Nothing to paste. The first **Launch session** sets Cloud Shell up by itself:
+the app uploads the installer it carries, checks the upload byte for byte,
+builds the image (the first run pulls ~2 GB — expect a few minutes) and starts
+the session. The bar at the bottom says `first run - …` while that happens.
 
-It prints a URL. Open it and confirm you land on the portal page in a
-fullscreen Firefox.
+The Cloud Shell side is also still in `cloudshell-setup.sh`, for running it by
+hand (a terminal, another machine, or recovery): paste it into a Cloud Shell
+terminal and run it. It installs itself to `~/cybershield/`, builds the image,
+starts the session, and sets up auto-start for later VMs.
 
-**Check the lock before the demo:** click `BLOCKED · YouTube` → you should get
-Firefox's blocked-by-policy page.
+Either way, the app then opens the session in its own app window — no address
+bar, no tabs, no back button on the *outside*, so the only browser controls on
+screen belong to the locked session itself.
+
+Inside, you get a normal, maximised Firefox: back, forward, reload and an
+address bar all work. The lock is enforced by the policy, not by hiding
+buttons.
+
+**Check the lock before the demo:** type `youtube.com` in the address bar and
+press Enter → you should get Firefox's blocked-by-policy page. Then go back.
 
 ---
 
@@ -73,7 +84,11 @@ While anything is running, the bar at the bottom of the window tracks it:
 - an `elapsed 1:24` counter the whole time, so you can tell it hasn't hung
 
 The same bar runs for **Launch** and **Reset**, showing what Cloud Shell is
-reporting line by line.
+reporting line by line. The first Launch also shows `session update - uploading
+the installer, chunk 1 of 5` and `session update - building the session image`
+while it sets Cloud Shell up. Every later Launch checks the session side by
+checksum and updates it automatically whenever the app carries a newer version
+— an updated app rolls the session forward by itself.
 
 Then use it:
 
@@ -81,6 +96,9 @@ Then use it:
    they get trimmed to the domain, and subdomains are covered automatically.
 2. Pick the mode.
 3. **Launch session** — pushes the list, starts the VM, opens the browser.
+4. Navigate normally *inside* the session window: back/forward/reload, or type
+   a site in its address bar. Allowed sites load; everything else gets the
+   blocked-by-policy page.
 
 Your list is saved in `cybershield-sites.json` next to the `.exe`, so it's
 there next time. The list is only pushed when you hit Launch or Reset.
@@ -92,11 +110,14 @@ there next time. The list is only pushed when you hit Launch or Reset.
 - **Install Google CLI / Sign in to Google** — top-right. Its label follows what
   is missing: install first, then sign in, then *Sign in again*. It stays
   clickable throughout, so a retry is always one click away.
-- **Launch session** — applies the website list, wakes Cloud Shell, waits for
-  the session, opens the browser.
+- **Launch session** — applies the website list, sets Cloud Shell up on first
+  use, waits for the session, opens it in an app window.
 - **Reset session** — applies the website list and restarts the container.
   A blank machine in ~10 seconds. Best demo beat: add a site, hit Reset, show
   the new site working live.
+- **Turn off session** — stops the locked browser session. The screen inside
+  goes dead until the next Launch (or Reset), which brings it straight back.
+  Use it when the demo is over; the Cloud Shell VM itself is left alone.
 
 ---
 
@@ -120,11 +141,20 @@ there next time. The list is only pushed when you hit Launch or Reset.
   can open the URL — screen-share for judges.
 - Changing the list takes effect on the **next Launch or Reset**, not live.
   Firefox reads its policy at startup.
-- Cloud Shell discards the VM after ~1 hour idle. Launch wakes it again.
-- After a reconnect the image has to rebuild (~few minutes). Pre-build before
-  presenting.
-- If the launcher says "Could not reach the session", check by hand in Cloud
-  Shell:
+- **Navigate inside the session window, not outside it.** The outer app window
+  is only a viewer; the browser with the toolbar is the one *inside* it, and
+  that is the one the website list governs. (If a machine has no Edge or
+  Chrome, the app falls back to opening the session in your default browser —
+  in that case ignore the outer browser's own back/reload/address bar; only the
+  inner one is the session.)
+- Cloud Shell discards the VM after ~1 hour idle. Launch wakes it again, and
+  rebuilds the session's home folder if that was wiped too — no action needed.
+- After a reconnect the image may have to rebuild (~few minutes); Launch does
+  that by itself, and it also rebuilds the image by itself whenever the session
+  code changes. Still, pre-build before presenting.
+- If the launcher says "Could not reach the session", check the internet and
+  press Launch again first — the first run can take minutes. If it still fails,
+  check by hand in Cloud Shell:
   ```bash
   bash ~/cybershield/setup.sh
   docker logs cybershield
