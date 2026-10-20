@@ -51,6 +51,9 @@ else reachable.
 If there is time, the engineering story: RUN-LOG (16 documented failures with
 causes and proofs), the self-provisioning install, the plink transport work.
 
+For a longer slot — the 15–20 minute version with two speakers, timings, spoken
+lines and a Q&A crib — see `PRESENTATION-SCRIPT.md`.
+
 ## 3. Ten minutes before you go on
 
 - [ ] App open, status shows "Ready. Signed in as …"

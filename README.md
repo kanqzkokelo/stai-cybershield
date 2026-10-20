@@ -12,6 +12,7 @@
 | `cybershield.log` | Your PC | Runtime log — every action, success or failure (created on first run) |
 | `RUN-LOG.md` | — | What works, what broke, why, and what is still open |
 | `DEMO-DAY.md` | — | The demo-day runbook: beats, checklist, recovery playbook |
+| `PRESENTATION-SCRIPT.md` | — | 15–20 minute showcase script: timings, speaker roles, spoken lines, Q&A crib |
 | `hub-page.png` | — | Screenshot of the live locked session |
 | `blocked-page.png` | — | What an off-list site gets — Firefox's blocked-by-policy page |
 

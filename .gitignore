@@ -5,3 +5,6 @@ cybershield-sites.json
 
 # Build scratch
 *.tmp
+
+# Agent/harness local state
+.opencode/
